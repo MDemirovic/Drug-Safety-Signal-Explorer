@@ -61,7 +61,7 @@ Important working rules:
 - exact files changed
 - commands you ran
 - test/build results
-- manual things I should verify in the browser
+- visual design and human-UX things I should verify in the browser
 - recommended git commands for me to commit or roll back
 
 11. If tests fail, do not hide it. Explain the failure and fix it if it is related to your changes.
@@ -71,7 +71,11 @@ Important working rules:
 15. Use TypeScript strictly.
 16. Use small, understandable components.
 17. Use server-side code for external API keys.
-18. The application must be suitable for a software CV project.
+18. After every implementation step, spawn a subagent to test the affected functionality and report any regressions or failures. An implementation step includes UI, backend, API, database, configuration, and infrastructure changes.
+19. The subagent functional check does not replace required lint, test, or build commands.
+20. Marko only needs to manually confirm that the visual design looks correct and that the page feels right to use as a human.
+21. Never ask Marko to repeat functional checks already completed successfully by the subagent, but always wait for his visual and human-UX approval before committing or continuing to the next phase.
+22. The application must be suitable for a software CV project.
 
 Project idea:
 Build a public pharmacovigilance dashboard called Drug Safety Signal Explorer.

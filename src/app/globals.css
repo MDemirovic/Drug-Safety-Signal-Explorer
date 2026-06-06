@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f8fbfa;
+  --paper-deep: #f2f7f6;
+  --ink: #064b47;
+  --ink-soft: #0b625c;
+  --text: #263653;
+  --muted: #68758a;
+  --muted-light: #8792a4;
+  --line: #dfe6e8;
+  --signal: #45c9b5;
+  --signal-dark: #0da691;
+  --signal-pale: #e4f6f2;
+  --warning: #9a5d13;
+  --warning-line: #e5c995;
+  --warning-bg: #fbf3df;
+}
+
+@theme inline {
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-newsreader);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-dm-sans), sans-serif;
+}
+
+body::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.19em;
+  color: var(--signal-dark);
+  text-transform: uppercase;
+}
+
+.page-grid {
+  background-image:
+    linear-gradient(to right, rgba(20, 43, 47, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 43, 47, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.reveal {
+  animation: reveal 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reveal-delay {
+  animation-delay: 120ms;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
