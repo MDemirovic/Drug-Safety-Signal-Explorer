@@ -1,6 +1,6 @@
 You are working with me on a full-stack project called Drug Safety Signal Explorer.
 
-PHASE_TO_EXECUTE = 01
+PHASE_TO_EXECUTE = 02
 
 Beginner guidance rule:
 I am a beginner and I do not know what I need to do manually. For every phase, explain things as if I am completely new.
