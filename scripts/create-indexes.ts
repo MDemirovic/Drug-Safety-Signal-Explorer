@@ -14,6 +14,17 @@ function isNamespaceNotFound(error: unknown) {
   );
 }
 
+function isExpiresAtAscendingIndex(index: Document) {
+  const key = index.key;
+
+  return (
+    typeof key === "object" &&
+    key !== null &&
+    Object.keys(key).length === 1 &&
+    key.expiresAt === 1
+  );
+}
+
 async function ensureDrugSnapshotTtlIndex(
   database: Db,
   collection: Collection<Document>,
@@ -28,6 +39,12 @@ async function ensureDrugSnapshotTtlIndex(
     if (!isNamespaceNotFound(error)) {
       throw error;
     }
+  }
+
+  if (existingIndex && !isExpiresAtAscendingIndex(existingIndex)) {
+    throw new Error(
+      `MongoDB index "${indexName}" exists with an unexpected key. Remove or rename it before creating the expiresAt TTL index.`,
+    );
   }
 
   if (existingIndex?.expireAfterSeconds === 0) {
