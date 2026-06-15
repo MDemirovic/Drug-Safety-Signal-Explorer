@@ -1,6 +1,20 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
+import { PlaceholderPage } from "@/components/placeholder-page";
+import { isAdminEmail } from "@/lib/auth/config";
+import { getCurrentSession } from "@/lib/auth/session";
+
+export default async function AdminPage() {
+  const session = await getCurrentSession();
+
+  if (!session) {
+    redirect("/login?next=/admin");
+  }
+
+  if (!isAdminEmail(session.user.email)) {
+    redirect("/");
+  }
+
   return (
     <PlaceholderPage
       eyebrow="Administration"

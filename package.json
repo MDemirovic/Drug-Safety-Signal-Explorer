@@ -11,6 +11,7 @@
     "db:create-indexes": "tsx --conditions=react-server scripts/create-indexes.ts"
   },
   "dependencies": {
+    "better-auth": "^1.6.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",

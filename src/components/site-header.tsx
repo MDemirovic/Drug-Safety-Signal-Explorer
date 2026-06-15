@@ -1,6 +1,6 @@
-import { Menu } from "lucide-react";
 import Link from "next/link";
 
+import { HeaderAuth } from "@/components/auth/header-auth";
 import { SignalMark } from "@/components/signal-mark";
 
 const navItems = [
@@ -23,8 +23,11 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          <nav className="flex items-center gap-1" aria-label="Main navigation">
+        <div className="flex items-center gap-1">
+          <nav
+            className="hidden items-center gap-1 md:flex"
+            aria-label="Main navigation"
+          >
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -35,27 +38,8 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
-          <Link
-            href="/login"
-            className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--text)] transition hover:text-[var(--ink)]"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className="rounded-xl bg-[var(--ink)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--ink-soft)]"
-          >
-            Create account
-          </Link>
+          <HeaderAuth />
         </div>
-
-        <Link
-          href="/compare"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-white/65 text-[var(--ink)] md:hidden"
-          aria-label="Open comparison page"
-        >
-          <Menu className="h-4 w-4" />
-        </Link>
       </div>
     </header>
   );

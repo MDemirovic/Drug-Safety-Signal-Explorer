@@ -203,7 +203,7 @@ Tasks:
   - /methodology
   - /login
   - /register
-  - /dashboard
+  - /dashboard/saved-reports
   - /admin
 
 - Create navbar and footer.
@@ -276,13 +276,15 @@ phase-03-auth
 Tasks:
 
 - Add Better Auth with MongoDB adapter.
+- Add a unique Better Auth user email index.
 - Implement register page.
 - Implement login page.
 - Implement logout.
 - Show user menu in navbar when logged in.
-- Protect /dashboard.
-- Protect /dashboard/saved-reports if created.
+- Return users to / after registration and login unless they were sent from a protected route.
+- Protect /dashboard/saved-reports.
 - Protect /admin by ADMIN_EMAILS.
+- Prevent public sign-up from claiming emails reserved in ADMIN_EMAILS.
 - Do not add email verification yet.
 - Do not add password reset yet.
 - Do not add OAuth yet.
@@ -292,7 +294,7 @@ Acceptance criteria:
 - User can register
 - User can login
 - User can logout
-- Dashboard is protected
+- Saved reports page is protected and linked from the user menu
 - Admin page is only accessible to emails listed in ADMIN_EMAILS
 - pnpm build passes
 
@@ -437,6 +439,7 @@ Tasks:
 - Create saved_reports API routes.
 - Add Save Report button on drug dashboard.
 - Add /dashboard/saved-reports page.
+- Link Saved reports from the authenticated user menu; do not add a general dashboard page.
 - User can view saved reports.
 - User can delete saved reports.
 - saved_reports must use authenticated userId.

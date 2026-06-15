@@ -3,6 +3,7 @@ import "server-only";
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
 const globalForMongo = globalThis as typeof globalThis & {
+  mongoClient?: MongoClient;
   mongoClientPromise?: Promise<MongoClient>;
 };
 
@@ -32,6 +33,7 @@ function getMongoDatabaseName() {
 
 function createMongoClient() {
   return new MongoClient(getMongoUri(), {
+    serverSelectionTimeoutMS: 5_000,
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
@@ -42,7 +44,7 @@ function createMongoClient() {
 
 export function getMongoClient() {
   if (!globalForMongo.mongoClientPromise) {
-    const connectionPromise = createMongoClient().connect();
+    const connectionPromise = getMongoClientHandle().connect();
     const retryableConnectionPromise = connectionPromise.catch((error) => {
       if (globalForMongo.mongoClientPromise === retryableConnectionPromise) {
         globalForMongo.mongoClientPromise = undefined;
@@ -57,9 +59,20 @@ export function getMongoClient() {
   return globalForMongo.mongoClientPromise;
 }
 
-export async function getDatabase(): Promise<Db> {
-  const databaseName = getMongoDatabaseName();
-  const client = await getMongoClient();
+export function getMongoClientHandle() {
+  if (!globalForMongo.mongoClient) {
+    globalForMongo.mongoClient = createMongoClient();
+  }
 
-  return client.db(databaseName);
+  return globalForMongo.mongoClient;
+}
+
+export function getDatabaseHandle(): Db {
+  return getMongoClientHandle().db(getMongoDatabaseName());
+}
+
+export async function getDatabase(): Promise<Db> {
+  await getMongoClient();
+
+  return getDatabaseHandle();
 }

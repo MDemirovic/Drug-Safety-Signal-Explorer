@@ -1,13 +1,12 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function RegisterPage() {
-  return (
-    <PlaceholderPage
-      eyebrow="Create an account"
-      title="Registration is coming later."
-      description="This polished placeholder keeps the planned route stable while account creation remains intentionally unimplemented during Phase 01."
-      status="Authentication arrives in Phase 03"
-      privatePreview
-    />
-  );
+import { AuthPage } from "@/components/auth/auth-page";
+import { getCurrentSession } from "@/lib/auth/session";
+
+export default async function RegisterPage() {
+  if (await getCurrentSession()) {
+    redirect("/");
+  }
+
+  return <AuthPage mode="register" />;
 }
