@@ -22,6 +22,7 @@ yet.
 
 ```bash
 corepack pnpm install
+corepack pnpm db:create-indexes
 corepack pnpm dev
 ```
 

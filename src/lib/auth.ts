@@ -9,6 +9,7 @@ import {
   getBetterAuthUrl,
   isAdminEmail,
 } from "@/lib/auth/config";
+import { ensureBetterAuthUserEmailIndex } from "@/lib/db/auth-indexes";
 import { getDatabaseHandle, getMongoClientHandle } from "@/lib/db/mongodb";
 
 const database = getDatabaseHandle();
@@ -31,6 +32,10 @@ export const auth = betterAuth({
               code: "ADMIN_EMAIL_SIGNUP_FORBIDDEN",
               message: "This email cannot be registered through public sign-up.",
             });
+          }
+
+          if (context?.path === "/sign-up/email") {
+            await ensureBetterAuthUserEmailIndex(database);
           }
         },
       },
