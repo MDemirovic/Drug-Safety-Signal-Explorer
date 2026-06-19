@@ -19,7 +19,7 @@ export const auth = betterAuth({
   appName: "Drug Safety Signal Explorer",
   baseURL: getBetterAuthUrl(),
   secret: getBetterAuthSecret(),
-  database: mongodbAdapter(database, { client: mongoClient }),
+  database: mongodbAdapter(database, { client: mongoClient, transaction: false }),
   emailAndPassword: {
     enabled: true,
   },
