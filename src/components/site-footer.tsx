@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Info } from "lucide-react";
+import Link from "next/link";
 
 export function SiteFooter() {
   return (
@@ -17,17 +16,17 @@ export function SiteFooter() {
           <Link href="/methodology" className="hover:text-[var(--ink)]">
             Methodology
           </Link>
-          <span aria-hidden="true">•</span>
+          <span aria-hidden="true">&middot;</span>
           <Link href="/methodology" className="hover:text-[var(--ink)]">
             Data source
           </Link>
-          <span aria-hidden="true">•</span>
+          <span aria-hidden="true">&middot;</span>
           <Link href="/methodology" className="hover:text-[var(--ink)]">
             Terms
           </Link>
         </div>
         <p className="lg:justify-self-end lg:text-right">
-          © 2026 Drug Safety Signal Explorer. All rights reserved.
+          &copy; 2026 Drug Safety Signal Explorer. All rights reserved.
         </p>
       </div>
     </footer>

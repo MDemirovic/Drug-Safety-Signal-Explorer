@@ -1,10 +1,10 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
 import { UserMenu } from "@/components/auth/user-menu";
-import { authClient } from "@/lib/auth-client";
 
 function GuestAuth() {
   return (
@@ -35,16 +35,24 @@ function GuestAuth() {
 }
 
 export function HeaderAuth() {
-  const { data: session } = authClient.useSession();
+  const { isLoaded, isSignedIn } = useUser();
 
-  if (session) {
+  if (!isLoaded) {
     return (
-      <div className="ml-1">
-        <UserMenu email={session.user.email} name={session.user.name} />
-      </div>
+      <div
+        className="hidden h-11 w-44 rounded-xl bg-[var(--paper-deep)] md:block"
+        aria-hidden="true"
+      />
     );
   }
 
-  // Keep public navigation usable while a slow or unavailable database is checked.
-  return <GuestAuth />;
+  if (!isSignedIn) {
+    return <GuestAuth />;
+  }
+
+  return (
+    <div className="ml-1">
+      <UserMenu />
+    </div>
+  );
 }

@@ -1,17 +1,20 @@
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import { PlaceholderPage } from "@/components/placeholder-page";
 import { isAdminEmail } from "@/lib/auth/config";
-import { getCurrentSession } from "@/lib/auth/session";
 
 export default async function AdminPage() {
-  const session = await getCurrentSession();
+  const { userId, redirectToSignIn } = await auth();
 
-  if (!session) {
-    redirect("/login?next=/admin");
+  if (!userId) {
+    return redirectToSignIn({ returnBackUrl: "/admin" });
   }
 
-  if (!isAdminEmail(session.user.email)) {
+  const user = await currentUser();
+  const email = user?.primaryEmailAddress?.emailAddress;
+
+  if (!isAdminEmail(email)) {
     redirect("/");
   }
 

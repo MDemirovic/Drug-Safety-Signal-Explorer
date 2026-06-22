@@ -1,36 +1,24 @@
 "use client";
 
-import { Bookmark, LogOut, UserRound } from "lucide-react";
+import { useClerk, useUser } from "@clerk/nextjs";
+import { Bookmark, LogOut, Settings, UserRound } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { authClient } from "@/lib/auth-client";
-
-type UserMenuProps = {
-  email: string;
-  name: string;
-};
-
-export function UserMenu({ email, name }: UserMenuProps) {
-  const router = useRouter();
+export function UserMenu() {
+  const { signOut } = useClerk();
+  const { user } = useUser();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState("");
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const name = user?.fullName || user?.firstName || email || "Account";
 
-  async function signOut() {
+  async function handleSignOut() {
     setError("");
     setIsSigningOut(true);
 
     try {
-      const result = await authClient.signOut();
-
-      if (result.error) {
-        setError("Logout failed. Please try again.");
-        return;
-      }
-
-      router.push("/");
-      router.refresh();
+      await signOut({ redirectUrl: "/" });
     } catch {
       setError("Logout is temporarily unavailable. Please try again.");
     } finally {
@@ -55,9 +43,16 @@ export function UserMenu({ email, name }: UserMenuProps) {
           <Bookmark className="h-4 w-4" />
           Saved reports
         </Link>
+        <Link
+          href="/account"
+          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-[var(--text)] hover:bg-[var(--signal-pale)]"
+        >
+          <Settings className="h-4 w-4" />
+          Account & security
+        </Link>
         <button
           type="button"
-          onClick={signOut}
+          onClick={handleSignOut}
           disabled={isSigningOut}
           className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-bold text-[var(--text)] hover:bg-[var(--signal-pale)] disabled:opacity-60"
         >

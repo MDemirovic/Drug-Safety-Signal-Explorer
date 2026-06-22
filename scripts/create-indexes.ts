@@ -67,13 +67,8 @@ async function ensureDrugSnapshotTtlIndex(
 }
 
 async function createIndexes() {
-  const [
-    { getCollections },
-    { ensureBetterAuthUserEmailIndex },
-    { getDatabase },
-  ] = await Promise.all([
+  const [{ getCollections }, { getDatabase }] = await Promise.all([
     import("../src/lib/db/collections"),
-    import("../src/lib/db/auth-indexes"),
     import("../src/lib/db/mongodb"),
   ]);
   const database = await getDatabase();
@@ -111,7 +106,6 @@ async function createIndexes() {
       { createdAt: -1 },
       { name: "search_logs_created_at" },
     ),
-    ensureBetterAuthUserEmailIndex(database),
   ]);
 
   console.log(`MongoDB indexes are ready in "${database.databaseName}":`);

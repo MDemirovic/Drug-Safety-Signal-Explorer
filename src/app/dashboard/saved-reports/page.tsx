@@ -1,11 +1,14 @@
-import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 
 import { PlaceholderPage } from "@/components/placeholder-page";
-import { getCurrentSession } from "@/lib/auth/session";
 
 export default async function SavedReportsPage() {
-  if (!(await getCurrentSession())) {
-    redirect("/login?next=/dashboard/saved-reports");
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!userId) {
+    return redirectToSignIn({
+      returnBackUrl: "/dashboard/saved-reports",
+    });
   }
 
   return (

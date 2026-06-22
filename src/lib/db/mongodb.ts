@@ -44,10 +44,15 @@ function createMongoClient() {
 
 export function getMongoClient() {
   if (!globalForMongo.mongoClientPromise) {
-    const connectionPromise = getMongoClientHandle().connect();
+    const mongoClient = getMongoClientHandle();
+    const connectionPromise = mongoClient.connect();
     const retryableConnectionPromise = connectionPromise.catch((error) => {
       if (globalForMongo.mongoClientPromise === retryableConnectionPromise) {
         globalForMongo.mongoClientPromise = undefined;
+      }
+
+      if (globalForMongo.mongoClient === mongoClient) {
+        globalForMongo.mongoClient = undefined;
       }
 
       throw error;

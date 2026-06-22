@@ -10,7 +10,7 @@ const navItems = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-white/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 bg-white/94 backdrop-blur-xl">
       <div className="flex h-20 w-full items-center justify-between px-5 sm:px-8 lg:px-14">
         <Link
           href="/"

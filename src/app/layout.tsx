@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { DM_Sans, Newsreader } from "next/font/google";
 
@@ -31,12 +32,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${newsreader.variable}`}>
-      <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-      </body>
-    </html>
+    <ClerkProvider
+      signInUrl="/login"
+      signUpUrl="/register"
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
+    >
+      <html lang="en" className={`${dmSans.variable} ${newsreader.variable}`}>
+        <body>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,6 +1,6 @@
 You are working with me on a full-stack project called Drug Safety Signal Explorer.
 
-PHASE_TO_EXECUTE = 02
+PHASE_TO_EXECUTE = 04
 
 Beginner guidance rule:
 I am a beginner and I do not know what I need to do manually. For every phase, explain things as if I am completely new.
@@ -129,7 +129,7 @@ Final selected stack:
 - Tailwind CSS
 - shadcn/ui
 - MongoDB Atlas Free using the official mongodb driver
-- Better Auth for email/password login/register
+- Clerk for email/password registration, login, password recovery and account management
 - Mistral API for AI summaries
 - openFDA Drug Event API
 - openFDA Drug Label API
@@ -181,7 +181,6 @@ Collections planned:
 4. saved_reports
 5. api_logs
 6. search_logs
-7. Better Auth collections
 
 Planned phases:
 
@@ -244,8 +243,8 @@ Tasks:
   - MONGODB_DB
   - OPENFDA_API_KEY
   - MISTRAL_API_KEY
-  - BETTER_AUTH_SECRET
-  - BETTER_AUTH_URL
+  - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  - CLERK_SECRET_KEY
   - ADMIN_EMAILS
 
 - Add indexes:
@@ -268,25 +267,23 @@ Acceptance criteria:
 
 PHASE 03 — Authentication
 Goal:
-Add Better Auth email/password authentication.
+Add Clerk email/password authentication and account management.
 
 Branch:
 phase-03-auth
 
 Tasks:
 
-- Add Better Auth with MongoDB adapter.
-- Add a unique Better Auth user email index.
+- Add Clerk to the Next.js application.
+- Keep authentication independent from the application MongoDB connection.
 - Implement register page.
 - Implement login page.
 - Implement logout.
+- Implement password recovery and password changes through Clerk.
 - Show user menu in navbar when logged in.
 - Return users to / after registration and login unless they were sent from a protected route.
 - Protect /dashboard/saved-reports.
 - Protect /admin by ADMIN_EMAILS.
-- Prevent public sign-up from claiming emails reserved in ADMIN_EMAILS.
-- Do not add email verification yet.
-- Do not add password reset yet.
 - Do not add OAuth yet.
 
 Acceptance criteria:
@@ -294,6 +291,7 @@ Acceptance criteria:
 - User can register
 - User can login
 - User can logout
+- User can recover and change their password
 - Saved reports page is protected and linked from the user menu
 - Admin page is only accessible to emails listed in ADMIN_EMAILS
 - pnpm build passes

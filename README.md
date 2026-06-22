@@ -13,7 +13,8 @@ The project currently includes:
 - Working landing-page drug search route
 - Polished placeholders for all planned public routes
 - Server-only MongoDB helpers and idempotent index setup
-- Better Auth email/password registration, login, logout, and route protection
+- Clerk email/password registration, login, password recovery, account security,
+  logout, and route protection
 
 No openFDA requests, saved-report functionality, or AI requests are implemented
 yet.
@@ -28,9 +29,9 @@ corepack pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Authentication also requires server-side `BETTER_AUTH_SECRET`,
-`BETTER_AUTH_URL`, and `ADMIN_EMAILS` values. See `.env.example` for the
-expected format.
+Authentication requires `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, the server-side
+`CLERK_SECRET_KEY`, and `ADMIN_EMAILS`. See `.env.example` for the expected
+format.
 
 ## Important limitation
 
