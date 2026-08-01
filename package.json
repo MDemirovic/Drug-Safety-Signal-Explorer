@@ -10,7 +10,9 @@
     "lint": "eslint",
     "db:create-indexes": "tsx --conditions=react-server scripts/create-indexes.ts",
     "test:openfda": "tsx --conditions=react-server scripts/test-openfda.ts",
-    "test:openfda:client": "tsx --conditions=react-server scripts/test-openfda-client.ts"
+    "test:openfda:client": "tsx --conditions=react-server scripts/test-openfda-client.ts",
+    "test:rxnorm": "tsx --conditions=react-server scripts/test-rxnorm.ts",
+    "test:rxnorm:client": "tsx --conditions=react-server scripts/test-rxnorm-client.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.7",
