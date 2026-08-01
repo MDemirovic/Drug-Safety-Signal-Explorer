@@ -156,6 +156,10 @@ async function createIndexes() {
   await Promise.all([
     dropIndexIfPresent(collections.drugSnapshots, "cache_key_unique"),
     dropIndexIfPresent(
+      collections.comparisonSnapshots,
+      "comparison_request_keys_unique",
+    ),
+    dropIndexIfPresent(
       collections.drugIdentities,
       "drug_identity_cache_key_unique",
     ),
@@ -191,6 +195,17 @@ async function createIndexes() {
     collections.comparisonSnapshots.createIndex(
       { comparisonKey: 1 },
       { name: "comparison_key_unique", unique: true },
+    ),
+    collections.comparisonSnapshots.createIndex(
+      { requestKeys: 1 },
+      {
+        name: "comparison_request_keys",
+        partialFilterExpression: { "requestKeys.0": { $exists: true } },
+      },
+    ),
+    collections.comparisonSnapshots.createIndex(
+      { expiresAt: 1 },
+      { name: "comparison_expires_at", expireAfterSeconds: 0 },
     ),
     collections.aiSummaries.createIndex(
       {

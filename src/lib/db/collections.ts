@@ -8,6 +8,7 @@ import type {
   DrugSnapshotDocument,
 } from "@/types/drug-snapshot";
 import type { SavedReportDocument } from "@/types/saved-report";
+import type { ComparisonSnapshotDocument } from "@/types/comparison-snapshot";
 
 export const COLLECTION_NAMES = {
   drugSnapshots: "drug_snapshots",
@@ -22,7 +23,7 @@ export const COLLECTION_NAMES = {
 export type AppCollections = {
   drugSnapshots: Collection<DrugSnapshotDocument>;
   drugIdentities: Collection<DrugIdentity>;
-  comparisonSnapshots: Collection<Document>;
+  comparisonSnapshots: Collection<ComparisonSnapshotDocument>;
   aiSummaries: Collection<Document>;
   savedReports: Collection<SavedReportDocument>;
   apiLogs: Collection<Document>;
@@ -39,7 +40,9 @@ export async function getCollections(database?: Db): Promise<AppCollections> {
     drugIdentities: db.collection<DrugIdentity>(
       COLLECTION_NAMES.drugIdentities,
     ),
-    comparisonSnapshots: db.collection(COLLECTION_NAMES.comparisonSnapshots),
+    comparisonSnapshots: db.collection<ComparisonSnapshotDocument>(
+      COLLECTION_NAMES.comparisonSnapshots,
+    ),
     aiSummaries: db.collection(COLLECTION_NAMES.aiSummaries),
     savedReports: db.collection<SavedReportDocument>(
       COLLECTION_NAMES.savedReports,

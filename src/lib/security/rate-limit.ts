@@ -127,7 +127,7 @@ async function enforceLimit(
   }
 }
 
-export async function enforceDrugSnapshotBuildLimit(
+async function enforceDrugSnapshotClientBuildLimit(
   headers: Headers,
   context: RateLimitContext = {},
 ) {
@@ -146,6 +146,11 @@ export async function enforceDrugSnapshotBuildLimit(
       context,
     );
   }
+}
+
+async function enforceDrugSnapshotGlobalBuildLimit(
+  context: RateLimitContext = {},
+) {
   await enforceLimit(
     {
       scope: "drug-snapshot-build-global",
@@ -155,6 +160,30 @@ export async function enforceDrugSnapshotBuildLimit(
     },
     context,
   );
+}
+
+export async function enforceDrugSnapshotBuildLimit(
+  headers: Headers,
+  context: RateLimitContext = {},
+) {
+  await enforceDrugSnapshotClientBuildLimit(headers, context);
+  await enforceDrugSnapshotGlobalBuildLimit(context);
+}
+
+export function createComparisonSnapshotBuildAuthorizer(
+  headers: Headers,
+  context: RateLimitContext = {},
+) {
+  let clientAuthorization: Promise<void> | null = null;
+
+  return async () => {
+    clientAuthorization ??= enforceDrugSnapshotClientBuildLimit(
+      headers,
+      context,
+    );
+    await clientAuthorization;
+    await enforceDrugSnapshotGlobalBuildLimit(context);
+  };
 }
 
 export async function enforceDrugRequestIngressLimit(
