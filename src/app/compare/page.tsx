@@ -1,13 +1,23 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { ComparisonWorkspace } from "@/components/comparison/comparison-workspace";
 
-export default function ComparePage() {
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const drugA = first(params.drugA).trim();
+  const drugB = first(params.drugB).trim();
+
   return (
-    <PlaceholderPage
-      eyebrow="Drug comparison"
-      title="Compare reported signals with context."
-      description="The comparison workspace will place two aggregated drug snapshots side by side, including overlapping reported reactions and trend views. It will never claim that raw report counts prove one drug is safer."
-      status="Comparison arrives in Phase 10"
-      showLimitations
+    <ComparisonWorkspace
+      key={`${drugA.toLocaleLowerCase("en-US")}::${drugB.toLocaleLowerCase("en-US")}`}
+      initialDrugA={drugA}
+      initialDrugB={drugB}
     />
   );
 }
