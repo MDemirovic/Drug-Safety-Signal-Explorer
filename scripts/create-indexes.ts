@@ -205,6 +205,10 @@ async function createIndexes() {
       { userId: 1 },
       { name: "saved_reports_user_id" },
     ),
+    collections.savedReports.createIndex(
+      { userId: 1, drugSlug: 1 },
+      { name: "saved_reports_user_drug_unique", unique: true },
+    ),
     collections.apiLogs.createIndex(
       { createdAt: -1 },
       { name: "api_logs_created_at" },

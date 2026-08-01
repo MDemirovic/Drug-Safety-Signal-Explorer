@@ -13,7 +13,8 @@
     "test:openfda:client": "tsx --conditions=react-server scripts/test-openfda-client.ts",
     "test:rxnorm": "tsx --conditions=react-server scripts/test-rxnorm.ts",
     "test:rxnorm:client": "tsx --conditions=react-server scripts/test-rxnorm-client.ts",
-    "test:drug-snapshot": "tsx --conditions=react-server scripts/test-drug-snapshot.ts"
+    "test:drug-snapshot": "tsx --conditions=react-server scripts/test-drug-snapshot.ts",
+    "test:saved-reports": "tsx --conditions=react-server scripts/test-saved-reports.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.7",

@@ -30,6 +30,7 @@ import {
 } from "recharts";
 
 import { LimitationsAlert } from "@/components/limitations-alert";
+import { SaveReportButton } from "@/components/saved-reports/save-report-button";
 import { Button } from "@/components/ui/button";
 import type { DrugSnapshotResult } from "@/types/drug-snapshot";
 
@@ -93,13 +94,16 @@ export function DrugHeaderCard({ snapshot }: { snapshot: DrugSnapshotPayload }) 
       <div className="pointer-events-none absolute -top-24 -right-16 h-60 w-60 rounded-full bg-[var(--signal-pale)] blur-2xl" />
       <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <div className="mb-5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[var(--ink)] px-3 py-1 text-[0.67rem] font-bold tracking-[0.16em] text-white uppercase">
-              FAERS signal profile
-            </span>
-            <span className="rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs font-semibold text-[var(--muted)]">
-              {snapshot.cacheStatus === "hit" ? "Cached snapshot" : "Fresh snapshot"}
-            </span>
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[var(--ink)] px-3 py-1 text-[0.67rem] font-bold tracking-[0.16em] text-white uppercase">
+                FAERS signal profile
+              </span>
+              <span className="rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                {snapshot.cacheStatus === "hit" ? "Cached snapshot" : "Fresh snapshot"}
+              </span>
+            </div>
+            <SaveReportButton key={snapshot.slug} slug={snapshot.slug} />
           </div>
           <h1 className="font-display max-w-4xl text-5xl leading-[0.92] tracking-[-0.04em] text-[var(--ink)] capitalize sm:text-7xl">
             {snapshot.normalizedName}

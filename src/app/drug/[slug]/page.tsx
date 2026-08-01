@@ -6,5 +6,6 @@ export default async function DrugPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  return <DrugDashboard slug={decodeURIComponent(slug)} />;
+  const decodedSlug = decodeURIComponent(slug);
+  return <DrugDashboard key={decodedSlug} slug={decodedSlug} />;
 }
