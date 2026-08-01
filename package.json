@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:create-indexes": "tsx --conditions=react-server scripts/create-indexes.ts"
+    "db:create-indexes": "tsx --conditions=react-server scripts/create-indexes.ts",
+    "test:openfda": "tsx --conditions=react-server scripts/test-openfda.ts",
+    "test:openfda:client": "tsx --conditions=react-server scripts/test-openfda-client.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.7",
@@ -20,7 +22,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
