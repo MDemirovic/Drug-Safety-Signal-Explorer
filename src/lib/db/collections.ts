@@ -3,9 +3,14 @@ import "server-only";
 import type { Collection, Db, Document } from "mongodb";
 
 import { getDatabase } from "@/lib/db/mongodb";
+import type {
+  DrugIdentity,
+  DrugSnapshotDocument,
+} from "@/types/drug-snapshot";
 
 export const COLLECTION_NAMES = {
   drugSnapshots: "drug_snapshots",
+  drugIdentities: "drug_identities",
   comparisonSnapshots: "comparison_snapshots",
   aiSummaries: "ai_summaries",
   savedReports: "saved_reports",
@@ -14,14 +19,25 @@ export const COLLECTION_NAMES = {
 } as const;
 
 export type AppCollections = {
-  [Name in keyof typeof COLLECTION_NAMES]: Collection<Document>;
+  drugSnapshots: Collection<DrugSnapshotDocument>;
+  drugIdentities: Collection<DrugIdentity>;
+  comparisonSnapshots: Collection<Document>;
+  aiSummaries: Collection<Document>;
+  savedReports: Collection<Document>;
+  apiLogs: Collection<Document>;
+  searchLogs: Collection<Document>;
 };
 
 export async function getCollections(database?: Db): Promise<AppCollections> {
   const db = database ?? (await getDatabase());
 
   return {
-    drugSnapshots: db.collection(COLLECTION_NAMES.drugSnapshots),
+    drugSnapshots: db.collection<DrugSnapshotDocument>(
+      COLLECTION_NAMES.drugSnapshots,
+    ),
+    drugIdentities: db.collection<DrugIdentity>(
+      COLLECTION_NAMES.drugIdentities,
+    ),
     comparisonSnapshots: db.collection(COLLECTION_NAMES.comparisonSnapshots),
     aiSummaries: db.collection(COLLECTION_NAMES.aiSummaries),
     savedReports: db.collection(COLLECTION_NAMES.savedReports),

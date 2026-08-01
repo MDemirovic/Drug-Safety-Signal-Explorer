@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
 async function main() {
-  const [{ createRxNormClient }, { normalizeDrugName }] = await Promise.all([
+  const [{ createRxNormClient }, { drugNameToSlug, normalizeDrugName }] = await Promise.all([
     import("../src/lib/rxnorm/client"),
     import("../src/lib/rxnorm/normalize"),
   ]);
@@ -51,7 +51,7 @@ async function main() {
   });
   assert.equal(fallback.source, "fallback");
   assert.equal(fallback.normalizedName, "unknown product");
-  assert.equal(fallback.slug, "unknown-product");
+  assert.match(fallback.slug, /^unknown-product-[a-f0-9]{32}$/);
 
   const approximatePaths: string[] = [];
   const approximateClient = createRxNormClient({
@@ -107,7 +107,22 @@ async function main() {
     client: timeoutClient,
   });
   assert.equal(timeoutFallback.source, "fallback");
-  assert.equal(timeoutFallback.slug, "delayed-drug");
+  assert.match(timeoutFallback.slug, /^delayed-drug-[a-f0-9]{32}$/);
+
+  assert.notEqual(
+    drugNameToSlug("drug name"),
+    drugNameToSlug("drug-name"),
+  );
+  assert.notEqual(drugNameToSlug("café"), drugNameToSlug("cafe"));
+
+  const unicodeSlugA = drugNameToSlug("Ж");
+  const unicodeSlugB = drugNameToSlug("中");
+  assert.notEqual(unicodeSlugA, unicodeSlugB);
+  assert.match(unicodeSlugA, /^drug-[a-f0-9]{32}$/);
+  const longSlugA = drugNameToSlug("a".repeat(120));
+  const longSlugB = drugNameToSlug(`${"a".repeat(119)}b`);
+  assert.notEqual(longSlugA, longSlugB);
+  assert.ok(longSlugA.length <= 100);
 
   console.log(
     "RxNorm retry, timeout, exact/approximate match, and fallback checks passed.",

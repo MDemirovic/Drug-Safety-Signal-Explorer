@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 import {
   createRxNormClient,
   type RxNormLookupClient,
@@ -37,16 +39,25 @@ export function cleanDrugName(input: string) {
 }
 
 export function drugNameToSlug(name: string) {
-  const slug = name
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
+  const decomposedName = name.normalize("NFKD").toLowerCase();
+  const comparableName = decomposedName.replace(/[\u0300-\u036f]/g, "");
+  const fullSlug = comparableName
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 100)
-    .replace(/-+$/g, "");
+    .replace(/^-+|-+$/g, "");
+  const isLossy = /[^a-z0-9]/.test(decomposedName);
+  const needsHash = !fullSlug || fullSlug.length > 100 || isLossy;
 
-  return slug || "drug";
+  if (!needsHash) {
+    return fullSlug;
+  }
+
+  const hash = createHash("sha256")
+    .update(name.normalize("NFKC").toLocaleLowerCase("en-US"))
+    .digest("hex")
+    .slice(0, 32);
+  const prefix = (fullSlug || "drug").slice(0, 67).replace(/-+$/g, "");
+
+  return `${prefix}-${hash}`;
 }
 
 export async function normalizeDrugName(
@@ -79,4 +90,3 @@ export async function normalizeDrugName(
     source: "fallback",
   };
 }
-

@@ -19,13 +19,11 @@ async function main() {
       },
     },
   });
-  assert.deepEqual(fallback, {
-    inputName: "Imaginary Drug 123",
-    normalizedName: "imaginary drug 123",
-    slug: "imaginary-drug-123",
-    rxcui: null,
-    source: "fallback",
-  });
+  assert.equal(fallback.inputName, "Imaginary Drug 123");
+  assert.equal(fallback.normalizedName, "imaginary drug 123");
+  assert.match(fallback.slug, /^imaginary-drug-123-[a-f0-9]{32}$/);
+  assert.equal(fallback.rxcui, null);
+  assert.equal(fallback.source, "fallback");
 
   console.log(
     JSON.stringify({ omeprazole, prilosec, fallback }, null, 2),
@@ -38,4 +36,3 @@ main().catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;
 });
-
