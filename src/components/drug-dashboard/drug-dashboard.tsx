@@ -13,8 +13,9 @@ import {
   RefreshCw,
   Route,
   ShieldAlert,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -90,37 +91,143 @@ function EvidenceInterpretationNotice({
 }: {
   drugName: string;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setIsOpen(false);
+      window.requestAnimationFrame(() => triggerRef.current?.focus());
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  function closePanel() {
+    setIsOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }
+
   return (
-    <section
-      aria-labelledby="evidence-interpretation-title"
-      className="relative overflow-hidden rounded-[1.6rem] border border-[#e5bb72] bg-[#fff8e8] px-6 py-6 shadow-[0_18px_50px_rgba(110,72,18,0.08)] sm:px-8"
-    >
-      <div className="pointer-events-none absolute -top-20 -right-12 h-44 w-44 rounded-full bg-[#f2d49a]/35 blur-2xl" />
-      <div className="relative flex gap-4 sm:gap-5">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#e8c783] bg-white text-[#9a5b08] shadow-sm">
-          <AlertTriangle className="h-5 w-5" aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[0.67rem] font-bold tracking-[0.17em] text-[#9a5b08] uppercase">
-            Read before interpreting these numbers
-          </p>
-          <h2
-            id="evidence-interpretation-title"
-            className="font-display mt-2 text-2xl leading-tight text-[var(--ink)] sm:text-[2rem]"
-          >
-            A mention in a report is not proof that {drugName} caused the event.
-          </h2>
-          <p className="mt-3 max-w-5xl text-sm leading-6 text-[#604c30] sm:text-[0.95rem] sm:leading-7">
-            A FAERS report may list several medicines and several outcomes. {drugName} and a term such as death, hospitalization, or kidney disease may only appear in the same record; the public data does not connect an individual medicine to an individual outcome or establish causation.
-          </p>
-          <div className="mt-4 grid gap-3 border-t border-[#ead6ad] pt-4 text-xs leading-5 text-[#6f5a39] sm:grid-cols-3 sm:text-sm sm:leading-6">
-            <p><strong className="text-[#4e3a1e]">Report-level classification.</strong> “Serious” and “death” describe the matching report, not a proven effect of this drug.</p>
-            <p><strong className="text-[#4e3a1e]">No successful-use count.</strong> FAERS does not record the millions of uses that may occur without a reported problem.</p>
-            <p><strong className="text-[#4e3a1e]">No risk estimate.</strong> These counts cannot measure incidence, personal risk, or how safe one medicine is compared with another.</p>
+    <>
+      <button
+        type="button"
+        tabIndex={isOpen ? 0 : -1}
+        aria-hidden={!isOpen}
+        aria-label="Close guidance about interpreting FAERS reports"
+        onClick={closePanel}
+        className={`fixed inset-0 z-40 bg-[#082f2d]/12 backdrop-blur-[1px] transition-opacity duration-300 ${
+          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls="evidence-interpretation-panel"
+        aria-label={isOpen ? "Close evidence guidance" : "Open evidence guidance"}
+        onClick={() => setIsOpen((current) => !current)}
+        className={`group fixed top-28 right-4 z-[60] flex h-13 w-13 items-center justify-center rounded-full border border-[#e4bd76] bg-[#fff9eb] text-[#9a5b08] shadow-[0_14px_38px_rgba(91,57,10,0.22)] transition-all duration-300 hover:scale-105 hover:bg-white focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#b56a09] sm:top-1/2 sm:-translate-y-1/2 ${
+          isOpen ? "sm:right-[30rem]" : "sm:right-5"
+        }`}
+      >
+        <span className="absolute inset-1 rounded-full border border-[#efd9af]" />
+        <AlertTriangle className="relative h-5 w-5" aria-hidden="true" />
+        {!isOpen && (
+          <span className="pointer-events-none absolute top-1/2 right-full mr-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-[var(--ink)] px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:block">
+            How to read this data
+          </span>
+        )}
+      </button>
+
+      <aside
+        id="evidence-interpretation-panel"
+        role={isOpen ? "dialog" : undefined}
+        aria-modal={isOpen ? "true" : undefined}
+        aria-hidden={!isOpen}
+        aria-labelledby="evidence-interpretation-title"
+        onKeyDown={(event) => {
+          if (event.key === "Tab") {
+            event.preventDefault();
+            closeButtonRef.current?.focus();
+          }
+        }}
+        className={`fixed right-3 bottom-3 left-3 z-50 max-h-[76vh] overflow-y-auto overscroll-contain rounded-[1.75rem] border border-[#e5bb72] bg-[#fff9ec] shadow-[0_28px_90px_rgba(22,47,45,0.3)] transition-[transform,opacity] duration-300 ease-out sm:top-6 sm:right-5 sm:bottom-6 sm:left-auto sm:max-h-none sm:w-[28rem] ${
+          isOpen
+            ? "pointer-events-auto translate-y-0 opacity-100 sm:translate-x-0"
+            : "pointer-events-none translate-y-[calc(100%+2rem)] opacity-0 sm:translate-x-[calc(100%+2rem)] sm:translate-y-0"
+        }`}
+      >
+        <div className="relative min-h-full overflow-hidden px-6 py-6 sm:px-7 sm:py-7">
+          <div className="pointer-events-none absolute -top-16 -right-12 h-52 w-52 rounded-full bg-[#f2d49a]/40 blur-3xl" />
+          <div className="relative flex items-start justify-between gap-5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#e8c783] bg-white text-[#9a5b08] shadow-sm">
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={closePanel}
+              tabIndex={isOpen ? 0 : -1}
+              aria-label="Close evidence guidance"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e4cda1] bg-white/80 text-[#6f5a39] transition-colors hover:bg-white hover:text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b56a09]"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="relative mt-7">
+            <p className="text-[0.67rem] font-bold tracking-[0.17em] text-[#9a5b08] uppercase">
+              Read before interpreting these numbers
+            </p>
+            <h2
+              id="evidence-interpretation-title"
+              className="font-display mt-3 text-[2rem] leading-[1.05] text-[var(--ink)] sm:text-[2.35rem]"
+            >
+              A mention is not proof that {drugName} caused the event.
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-[#604c30]">
+              A FAERS report may list several medicines and several outcomes. {drugName} and a term such as death, hospitalization, or kidney disease may only appear in the same record; the public data does not connect an individual medicine to an individual outcome or establish causation.
+            </p>
+
+            <div className="mt-6 space-y-5 border-t border-[#ead6ad] pt-6 text-sm leading-6 text-[#6f5a39]">
+              <div>
+                <p className="font-bold text-[#4e3a1e]">Report-level classification</p>
+                <p className="mt-1">“Serious” and “death” describe the matching report, not a proven effect of this drug.</p>
+              </div>
+              <div>
+                <p className="font-bold text-[#4e3a1e]">No successful-use count</p>
+                <p className="mt-1">FAERS does not record the millions of uses that may occur without a reported problem.</p>
+              </div>
+              <div>
+                <p className="font-bold text-[#4e3a1e]">No risk estimate</p>
+                <p className="mt-1">These counts cannot measure incidence, personal risk, or how safe one medicine is compared with another.</p>
+              </div>
+            </div>
+
+            <p className="mt-7 rounded-2xl border border-[#ead6ad] bg-white/65 px-4 py-3 text-xs leading-5 text-[#705b3d]">
+              Use this profile to explore reporting patterns only—not to make treatment or medication decisions.
+            </p>
           </div>
         </div>
-      </div>
-    </section>
+      </aside>
+    </>
   );
 }
 
@@ -506,11 +613,9 @@ export function DrugDashboard({ slug }: { slug: string }) {
   return (
     <main className="relative flex-1 overflow-hidden px-5 py-10 sm:py-14">
       <div className="page-grid pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-60" />
+      <EvidenceInterpretationNotice key={snapshot.slug} drugName={snapshot.normalizedName} />
       <div className="relative mx-auto max-w-7xl space-y-6">
         <div className="reveal"><DrugHeaderCard snapshot={snapshot} /></div>
-        <div className="reveal reveal-delay">
-          <EvidenceInterpretationNotice drugName={snapshot.normalizedName} />
-        </div>
         <div className="reveal reveal-delay grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard icon={FileText} label="Reports mentioning drug" value={snapshot.totalReports} note="FAERS records where this drug appears somewhere in the medicine list." />
           <MetricCard icon={ShieldAlert} label="Matching reports — serious" value={snapshot.seriousReports} note="Report-level classification; it does not attribute the outcome to this drug." tone="amber" />
