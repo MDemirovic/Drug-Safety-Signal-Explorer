@@ -34,6 +34,13 @@ export class RateLimitExceededError extends Error {
   }
 }
 
+export class AiSummaryRateLimitExceededError extends RateLimitExceededError {
+  constructor(retryAfterSeconds: number) {
+    super(retryAfterSeconds);
+    this.name = "AiSummaryRateLimitExceededError";
+  }
+}
+
 const mongoRateLimitStore: RateLimitStore = {
   async increment({ key, windowStart, expiresAt }) {
     const { apiLogs } = await getCollections();
@@ -214,4 +221,38 @@ export async function enforceDrugRequestIngressLimit(
     },
     context,
   );
+}
+
+export async function enforceAiSummaryBuildLimit(
+  headers: Headers,
+  context: RateLimitContext = {},
+) {
+  try {
+    const identifier = requestClientIdentifier(headers, context.trustProxyHeaders);
+    if (identifier) {
+      await enforceLimit(
+        {
+          scope: "ai-summary-build-client",
+          identifier,
+          limit: 3,
+          windowMs: 10 * 60_000,
+        },
+        context,
+      );
+    }
+    await enforceLimit(
+      {
+        scope: "ai-summary-build-global",
+        identifier: "all",
+        limit: 30,
+        windowMs: 10 * 60_000,
+      },
+      context,
+    );
+  } catch (error) {
+    if (error instanceof RateLimitExceededError) {
+      throw new AiSummaryRateLimitExceededError(error.retryAfterSeconds);
+    }
+    throw error;
+  }
 }
