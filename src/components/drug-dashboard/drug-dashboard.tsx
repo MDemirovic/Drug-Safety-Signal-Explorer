@@ -143,12 +143,12 @@ function EvidenceInterpretationNotice({
         aria-controls="evidence-interpretation-panel"
         aria-label={isOpen ? "Close evidence guidance" : "Open evidence guidance"}
         onClick={() => setIsOpen((current) => !current)}
-        className={`group fixed top-28 right-4 z-[60] flex h-13 w-13 items-center justify-center rounded-full border border-[#e4bd76] bg-[#fff9eb] text-[#9a5b08] shadow-[0_14px_38px_rgba(91,57,10,0.22)] transition-all duration-300 hover:scale-105 hover:bg-white focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#b56a09] sm:top-1/2 sm:-translate-y-1/2 ${
+        className={`group fixed top-28 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-[#8b4b00] bg-[#b96b0d] text-white shadow-[0_16px_42px_rgba(151,79,0,0.36)] ring-4 ring-[#f8dfad]/80 transition-all duration-300 hover:scale-105 hover:bg-[#9d5706] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#8b4b00] sm:top-40 ${
           isOpen ? "sm:right-[30rem]" : "sm:right-5"
         }`}
       >
-        <span className="absolute inset-1 rounded-full border border-[#efd9af]" />
-        <AlertTriangle className="relative h-5 w-5" aria-hidden="true" />
+        <span className="absolute inset-1 rounded-full border border-white/35" />
+        <AlertTriangle className="relative h-5.5 w-5.5 stroke-[2.4]" aria-hidden="true" />
         {!isOpen && (
           <span className="pointer-events-none absolute top-1/2 right-full mr-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-[var(--ink)] px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:block">
             How to read this data
