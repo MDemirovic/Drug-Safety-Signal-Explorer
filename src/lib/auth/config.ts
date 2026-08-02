@@ -1,12 +1,9 @@
 import "server-only";
 
+import { readAdminEnv } from "@/lib/env/server";
+
 export function getAdminEmails() {
-  return new Set(
-    (process.env.ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean),
-  );
+  return new Set(readAdminEnv().ADMIN_EMAILS);
 }
 
 export function isAdminEmail(email: string | null | undefined) {

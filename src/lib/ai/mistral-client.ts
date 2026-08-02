@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { readMistralEnv } from "@/lib/env/server";
 import type { AiSummaryContent } from "@/types/ai-summary";
 
 const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
@@ -113,7 +114,7 @@ export function createMistralSummaryClient(options: {
   fetcher?: typeof fetch;
   timeoutMs?: number;
 } = {}): MistralSummaryClient {
-  const apiKey = options.apiKey ?? process.env.MISTRAL_API_KEY;
+  const configuredApiKey = options.apiKey;
   const model = options.model ?? DEFAULT_MISTRAL_MODEL;
   const fetcher = options.fetcher ?? fetch;
   const timeoutMs = options.timeoutMs ?? 20_000;
@@ -121,7 +122,7 @@ export function createMistralSummaryClient(options: {
   return {
     model,
     async summarize(subjectJson) {
-      if (!apiKey) throw new MistralSummaryError("MISTRAL_API_KEY is not configured.");
+      const apiKey = configuredApiKey ?? readMistralEnv().MISTRAL_API_KEY;
       let subject: unknown;
       try {
         subject = JSON.parse(subjectJson);

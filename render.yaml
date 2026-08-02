@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: drug-safety-signal-explorer
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm env:validate && pnpm build && pnpm test:client-secrets
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: NODE_VERSION
+        value: 24.14.1
+      - key: MONGODB_DB
+        value: drug_safety_signal_explorer
+      - key: MONGODB_URI
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false

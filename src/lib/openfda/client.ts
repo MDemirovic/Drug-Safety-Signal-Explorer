@@ -3,6 +3,7 @@ import "server-only";
 import type { ZodType } from "zod";
 
 import { getCollections } from "@/lib/db/collections";
+import { readOpenFdaEnv } from "@/lib/env/server";
 import {
   countResponseSchema,
   labelResponseSchema,
@@ -23,6 +24,7 @@ import {
 const OPENFDA_BASE_URL = "https://api.fda.gov";
 const DEFAULT_TIMEOUT_MS = 12_000;
 const DEFAULT_RETRIES = 2;
+export const OPENFDA_LOG_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
 const TRANSIENT_STATUS_CODES = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 type OpenFdaEndpoint = "/drug/event.json" | "/drug/label.json";
@@ -38,6 +40,7 @@ type RequestLog = {
   errorCode?: string;
   errorMessage?: string;
   createdAt: Date;
+  expiresAt: Date;
 };
 
 export type OpenFdaClientOptions = {
@@ -67,7 +70,7 @@ export class OpenFdaError extends Error {
 }
 
 function configuredApiKey() {
-  return process.env.OPENFDA_API_KEY?.trim() || undefined;
+  return readOpenFdaEnv().OPENFDA_API_KEY;
 }
 
 function safeParams(params: QueryParams) {
@@ -92,6 +95,14 @@ async function writeLog(
   } catch (error) {
     console.error("Unable to write the openFDA request log.", error);
   }
+}
+
+function logRetentionDates() {
+  const createdAt = new Date();
+  return {
+    createdAt,
+    expiresAt: new Date(createdAt.getTime() + OPENFDA_LOG_TTL_MS),
+  };
 }
 
 function errorMessageFromPayload(payload: unknown) {
@@ -228,7 +239,7 @@ export function createOpenFdaClient(options: OpenFdaClientOptions = {}) {
           statusCode: response.status,
           durationMs: Date.now() - startedAt,
           outcome: "success",
-          createdAt: new Date(),
+          ...logRetentionDates(),
         });
 
         return parsed.data;
@@ -243,7 +254,7 @@ export function createOpenFdaClient(options: OpenFdaClientOptions = {}) {
           outcome: "error",
           errorCode: openFdaError.code,
           errorMessage: openFdaError.message,
-          createdAt: new Date(),
+          ...logRetentionDates(),
         });
 
         if (!openFdaError.retryable || attempt > retries) {

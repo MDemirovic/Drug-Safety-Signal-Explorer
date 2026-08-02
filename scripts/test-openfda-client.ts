@@ -7,7 +7,7 @@ async function main() {
     import("../src/lib/openfda/queries"),
   ]);
 
-  const { createOpenFdaClient, OpenFdaError } = clientModule;
+  const { createOpenFdaClient, OpenFdaError, OPENFDA_LOG_TTL_MS } = clientModule;
   const requestLogs: Array<Record<string, unknown>> = [];
   const requestedUrls: string[] = [];
   let calls = 0;
@@ -52,6 +52,15 @@ async function main() {
   assert.ok(
     requestLogs.every((entry) => !JSON.stringify(entry).includes("test-secret-key")),
     "request logs must never contain the API key",
+  );
+  assert.ok(
+    requestLogs.every(
+      (entry) =>
+        entry.createdAt instanceof Date &&
+        entry.expiresAt instanceof Date &&
+        entry.expiresAt.getTime() - entry.createdAt.getTime() === OPENFDA_LOG_TTL_MS,
+    ),
+    "every openFDA log must expire after the bounded retention period",
   );
 
   const timeoutLogs: Array<Record<string, unknown>> = [];
