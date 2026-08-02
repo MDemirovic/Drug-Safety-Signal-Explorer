@@ -1,14 +1,11 @@
 import { ArrowUpRight, Construction, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 
-import { LimitationsAlert } from "@/components/limitations-alert";
-
 type PlaceholderPageProps = {
   eyebrow: string;
   title: string;
   description: string;
   status?: string;
-  showLimitations?: boolean;
   privatePreview?: boolean;
 };
 
@@ -17,7 +14,6 @@ export function PlaceholderPage({
   title,
   description,
   status = "Planned for a later phase",
-  showLimitations = false,
   privatePreview = false,
 }: PlaceholderPageProps) {
   const Icon = privatePreview ? LockKeyhole : Construction;
@@ -57,11 +53,6 @@ export function PlaceholderPage({
             </Link>
           </div>
         </div>
-        {showLimitations && (
-          <div className="reveal reveal-delay mt-6">
-            <LimitationsAlert compact />
-          </div>
-        )}
       </div>
     </main>
   );

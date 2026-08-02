@@ -32,7 +32,6 @@ import {
 } from "recharts";
 
 import { AiSummaryCard } from "@/components/ai/ai-summary-card";
-import { LimitationsAlert } from "@/components/limitations-alert";
 import { SaveReportButton } from "@/components/saved-reports/save-report-button";
 import { Button } from "@/components/ui/button";
 import type { DrugSnapshotResult } from "@/types/drug-snapshot";
@@ -143,8 +142,10 @@ function EvidenceInterpretationNotice({
         aria-controls="evidence-interpretation-panel"
         aria-label={isOpen ? "Close evidence guidance" : "Open evidence guidance"}
         onClick={() => setIsOpen((current) => !current)}
-        className={`group fixed top-28 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-[#8b4b00] bg-[#b96b0d] text-white shadow-[0_16px_42px_rgba(151,79,0,0.36)] ring-4 ring-[#f8dfad]/80 transition-all duration-300 hover:scale-105 hover:bg-[#9d5706] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#8b4b00] sm:top-40 ${
-          isOpen ? "sm:right-[30rem]" : "sm:right-5"
+        className={`group fixed top-28 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-[#8b4b00] bg-[#b96b0d] text-white transition-all duration-300 hover:scale-105 hover:bg-[#9d5706] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#8b4b00] sm:top-40 ${
+          isOpen
+            ? "sm:right-[30rem]"
+            : "sm:right-[max(1rem,calc(25vw-21.75rem))]"
         }`}
       >
         <span className="absolute inset-1 rounded-full border border-white/35" />
@@ -626,7 +627,6 @@ export function DrugDashboard({ slug }: { slug: string }) {
         <div className="grid gap-6 lg:grid-cols-2"><SeriousnessPieChart snapshot={snapshot} /><SeriousnessBreakdownCard snapshot={snapshot} /></div>
         <div className="grid gap-6 lg:grid-cols-2"><YearlyTrendChart snapshot={snapshot} /><LabelSummaryCard snapshot={snapshot} /></div>
         <AiSummaryCard key={snapshot.slug} endpoint={`/api/drugs/${encodeURIComponent(snapshot.slug)}/summary`} />
-        <LimitationsAlert />
         <div className="flex flex-wrap items-center justify-between gap-3 px-2 pb-4 text-xs text-[var(--muted)]"><span>Sources: {snapshot.sourceMeta.eventSource} · {snapshot.sourceMeta.labelSource}</span><span>Aggregate-only snapshot · expires {new Date(snapshot.expiresAt).toLocaleDateString()}</span></div>
       </div>
     </main>
