@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Building2,
   CalendarRange,
+  ChevronDown,
   FileText,
   FlaskConical,
   HeartPulse,
@@ -81,6 +82,45 @@ function EmptyState({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-48 items-center justify-center rounded-2xl border border-dashed border-[var(--line)] bg-[var(--paper)] px-6 text-center text-sm leading-6 text-[var(--muted)]">
       {children}
     </div>
+  );
+}
+
+function EvidenceInterpretationNotice({
+  drugName,
+}: {
+  drugName: string;
+}) {
+  return (
+    <section
+      aria-labelledby="evidence-interpretation-title"
+      className="relative overflow-hidden rounded-[1.6rem] border border-[#e5bb72] bg-[#fff8e8] px-6 py-6 shadow-[0_18px_50px_rgba(110,72,18,0.08)] sm:px-8"
+    >
+      <div className="pointer-events-none absolute -top-20 -right-12 h-44 w-44 rounded-full bg-[#f2d49a]/35 blur-2xl" />
+      <div className="relative flex gap-4 sm:gap-5">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#e8c783] bg-white text-[#9a5b08] shadow-sm">
+          <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[0.67rem] font-bold tracking-[0.17em] text-[#9a5b08] uppercase">
+            Read before interpreting these numbers
+          </p>
+          <h2
+            id="evidence-interpretation-title"
+            className="font-display mt-2 text-2xl leading-tight text-[var(--ink)] sm:text-[2rem]"
+          >
+            A mention in a report is not proof that {drugName} caused the event.
+          </h2>
+          <p className="mt-3 max-w-5xl text-sm leading-6 text-[#604c30] sm:text-[0.95rem] sm:leading-7">
+            A FAERS report may list several medicines and several outcomes. {drugName} and a term such as death, hospitalization, or kidney disease may only appear in the same record; the public data does not connect an individual medicine to an individual outcome or establish causation.
+          </p>
+          <div className="mt-4 grid gap-3 border-t border-[#ead6ad] pt-4 text-xs leading-5 text-[#6f5a39] sm:grid-cols-3 sm:text-sm sm:leading-6">
+            <p><strong className="text-[#4e3a1e]">Report-level classification.</strong> “Serious” and “death” describe the matching report, not a proven effect of this drug.</p>
+            <p><strong className="text-[#4e3a1e]">No successful-use count.</strong> FAERS does not record the millions of uses that may occur without a reported problem.</p>
+            <p><strong className="text-[#4e3a1e]">No risk estimate.</strong> These counts cannot measure incidence, personal risk, or how safe one medicine is compared with another.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -190,7 +230,7 @@ export function TopReactionsChart({ snapshot }: { snapshot: DrugSnapshotPayload 
 
   return (
     <Panel className="p-6 sm:p-8 lg:col-span-2">
-      <PanelHeading eyebrow="Reported terms" title="Most frequently reported reactions" />
+      <PanelHeading eyebrow="Co-reported terms" title="Terms found in matching records" />
       {data.length === 0 ? (
         <EmptyState>No reaction aggregates were returned for this drug.</EmptyState>
       ) : (
@@ -213,7 +253,7 @@ export function TopReactionsChart({ snapshot }: { snapshot: DrugSnapshotPayload 
 export function TopReactionsTable({ snapshot }: { snapshot: DrugSnapshotPayload }) {
   return (
     <Panel className="overflow-hidden p-6 sm:p-8">
-      <PanelHeading eyebrow="Ranked list" title="Reaction detail" />
+      <PanelHeading eyebrow="Ranked list" title="Co-reported term detail" />
       {snapshot.topReactions.length === 0 ? (
         <EmptyState>No reaction terms are available.</EmptyState>
       ) : (
@@ -248,7 +288,7 @@ export function SeriousnessPieChart({ snapshot }: { snapshot: DrugSnapshotPayloa
 
   return (
     <Panel className="p-6 sm:p-8">
-      <PanelHeading eyebrow="Case classification" title="Reported seriousness" />
+      <PanelHeading eyebrow="Case classification" title="Report-level seriousness" />
       {data.length === 0 ? (
         <EmptyState>No seriousness classification was returned.</EmptyState>
       ) : (
@@ -290,7 +330,7 @@ export function SeriousnessBreakdownCard({ snapshot }: { snapshot: DrugSnapshotP
 
   return (
     <Panel className="p-6 sm:p-8">
-      <PanelHeading eyebrow="Serious outcomes" title="Outcome breakdown" />
+      <PanelHeading eyebrow="Report fields" title="Report-level outcome breakdown" />
       <div className="space-y-4">
         {breakdown.map(([label, value]) => (
           <div key={label}>
@@ -306,7 +346,7 @@ export function SeriousnessBreakdownCard({ snapshot }: { snapshot: DrugSnapshotP
 export function YearlyTrendChart({ snapshot }: { snapshot: DrugSnapshotPayload }) {
   return (
     <Panel className="p-6 sm:p-8 lg:col-span-2">
-      <PanelHeading eyebrow="Longitudinal view" title="Reports received by year" />
+      <PanelHeading eyebrow="Longitudinal view" title="Matching reports received by year" />
       {snapshot.yearlyTrend.length === 0 ? (
         <EmptyState>No yearly trend data is available.</EmptyState>
       ) : (
@@ -326,13 +366,61 @@ export function YearlyTrendChart({ snapshot }: { snapshot: DrugSnapshotPayload }
   );
 }
 
+function ExpandableLabelText({
+  sectionTitle,
+  value,
+}: {
+  sectionTitle: string;
+  value: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = value.length > 420;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-transparent bg-[var(--paper)] transition-colors focus-within:border-[var(--signal)]/40">
+      <div
+        className={`px-4 pt-4 text-sm leading-6 text-[var(--text)] ${
+          isLong && !expanded ? "line-clamp-5" : ""
+        } ${expanded ? "max-h-[28rem] overflow-y-auto overscroll-contain pr-3 pb-4" : "pb-4"}`}
+        tabIndex={expanded ? 0 : undefined}
+      >
+        {value}
+      </div>
+      {isLong && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((current) => !current)}
+          className="flex w-full items-center justify-between border-t border-[var(--line)] bg-white/70 px-4 py-3 text-xs font-bold tracking-[0.04em] text-[var(--signal-dark)] transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--signal-dark)]"
+        >
+          <span>
+            {expanded
+              ? `Collapse ${sectionTitle.toLowerCase()} section`
+              : `Show full ${sectionTitle.toLowerCase()} section`}
+          </span>
+          <ChevronDown
+            aria-hidden="true"
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+    </div>
+  );
+}
+
 function LabelList({ title, values }: { title: string; values: string[] }) {
   if (values.length === 0) return null;
   return (
     <div>
       <h3 className="mb-2 text-xs font-bold tracking-[0.13em] text-[var(--muted)] uppercase">{title}</h3>
       <div className="space-y-2 text-sm leading-6 text-[var(--text)]">
-        {values.slice(0, 2).map((value) => <p key={value} className="line-clamp-5 rounded-xl bg-[var(--paper)] p-4">{value}</p>)}
+        {values.map((value, index) => (
+          <ExpandableLabelText
+            key={`${title}-${index}`}
+            sectionTitle={title}
+            value={value}
+          />
+        ))}
       </div>
     </div>
   );
@@ -420,10 +508,13 @@ export function DrugDashboard({ slug }: { slug: string }) {
       <div className="page-grid pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-60" />
       <div className="relative mx-auto max-w-7xl space-y-6">
         <div className="reveal"><DrugHeaderCard snapshot={snapshot} /></div>
+        <div className="reveal reveal-delay">
+          <EvidenceInterpretationNotice drugName={snapshot.normalizedName} />
+        </div>
         <div className="reveal reveal-delay grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <MetricCard icon={FileText} label="Total reports" value={snapshot.totalReports} note="Reports matching the drug search across the evidence window." />
-          <MetricCard icon={ShieldAlert} label="Serious reports" value={snapshot.seriousReports} note="Reports marked serious in the source record." tone="amber" />
-          <MetricCard icon={HeartPulse} label="Non-serious" value={snapshot.nonSeriousReports} note="Reports not marked serious in the source record." />
+          <MetricCard icon={FileText} label="Reports mentioning drug" value={snapshot.totalReports} note="FAERS records where this drug appears somewhere in the medicine list." />
+          <MetricCard icon={ShieldAlert} label="Matching reports — serious" value={snapshot.seriousReports} note="Report-level classification; it does not attribute the outcome to this drug." tone="amber" />
+          <MetricCard icon={HeartPulse} label="Matching reports — non-serious" value={snapshot.nonSeriousReports} note="Report-level classification, not a confirmed reaction caused by this drug." />
           <MetricCard icon={CalendarRange} label="Years covered" value={Math.max(snapshot.sourceMeta.toYear - snapshot.sourceMeta.fromYear + 1, 0)} note="Calendar years included in the trend aggregation." tone="slate" />
         </div>
         <div className="grid gap-6 lg:grid-cols-3"><TopReactionsChart snapshot={snapshot} /><TopReactionsTable snapshot={snapshot} /></div>
