@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -65,7 +65,11 @@ export function DrugSearchForm() {
           disabled={isSearching || !drugName.trim()}
           className="h-16 rounded-xl px-8 shadow-[0_8px_20px_rgba(5,74,70,0.18)]"
         >
-          {isSearching ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
+          {isSearching ? (
+            <span className="search-preparing-spinner" aria-hidden="true" />
+          ) : (
+            <Search className="h-5 w-5" />
+          )}
           {isSearching ? "Preparing…" : "Explore drug"}
         </Button>
       </form>
