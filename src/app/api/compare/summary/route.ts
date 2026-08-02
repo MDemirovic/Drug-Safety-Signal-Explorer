@@ -4,7 +4,7 @@ import { buildAiSummary } from "@/lib/ai/build-ai-summary";
 import { MistralSummaryError } from "@/lib/ai/mistral-client";
 import { comparisonSummaryInput } from "@/lib/ai/summary-input";
 import { buildComparisonSnapshot, ComparisonInputError } from "@/lib/analytics/build-comparison-snapshot";
-import { snapshotErrorResponse } from "@/lib/analytics/snapshot-api";
+import { comparisonSearchSchema, snapshotErrorResponse } from "@/lib/analytics/snapshot-api";
 import {
   AiSummaryRateLimitExceededError,
   createComparisonSnapshotBuildAuthorizer,
@@ -15,8 +15,10 @@ import {
 export async function GET(request: NextRequest) {
   try {
     await enforceDrugRequestIngressLimit(request.headers);
-    const drugA = request.nextUrl.searchParams.get("drugA") ?? "";
-    const drugB = request.nextUrl.searchParams.get("drugB") ?? "";
+    const { drugA, drugB } = comparisonSearchSchema.parse({
+      drugA: request.nextUrl.searchParams.get("drugA") ?? "",
+      drugB: request.nextUrl.searchParams.get("drugB") ?? "",
+    });
     const snapshot = await buildComparisonSnapshot(drugA, drugB, {
       beforeDrugBuild: createComparisonSnapshotBuildAuthorizer(request.headers),
     });

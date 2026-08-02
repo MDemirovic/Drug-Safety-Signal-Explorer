@@ -2,33 +2,19 @@ import "server-only";
 
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
+import { readMongoEnv } from "@/lib/env/server";
+
 const globalForMongo = globalThis as typeof globalThis & {
   mongoClient?: MongoClient;
   mongoClientPromise?: Promise<MongoClient>;
 };
 
 function getMongoUri() {
-  const uri = process.env.MONGODB_URI?.trim();
-
-  if (!uri) {
-    throw new Error(
-      "MONGODB_URI is not configured. Add it to your local environment file before using MongoDB.",
-    );
-  }
-
-  return uri;
+  return readMongoEnv().MONGODB_URI;
 }
 
 function getMongoDatabaseName() {
-  const databaseName = process.env.MONGODB_DB?.trim();
-
-  if (!databaseName) {
-    throw new Error(
-      "MONGODB_DB is not configured. Add it to your local environment file before using MongoDB.",
-    );
-  }
-
-  return databaseName;
+  return readMongoEnv().MONGODB_DB;
 }
 
 function createMongoClient() {

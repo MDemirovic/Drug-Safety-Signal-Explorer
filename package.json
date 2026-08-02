@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.5.2",
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "pnpm env:validate && next start",
+    "env:validate": "tsx --conditions=react-server scripts/validate-env.ts",
     "lint": "eslint",
     "db:create-indexes": "tsx --conditions=react-server scripts/create-indexes.ts",
     "test:openfda": "tsx --conditions=react-server scripts/test-openfda.ts",
@@ -17,7 +21,9 @@
     "test:saved-reports": "tsx --conditions=react-server scripts/test-saved-reports.ts",
     "test:comparison": "tsx --conditions=react-server scripts/test-comparison.ts",
     "test:ai-summary": "tsx --conditions=react-server scripts/test-ai-summary.ts",
-    "test:admin": "tsx --conditions=react-server scripts/test-admin.ts"
+    "test:admin": "tsx --conditions=react-server scripts/test-admin.ts",
+    "test:production": "tsx --conditions=react-server scripts/test-production.ts",
+    "test:client-secrets": "tsx scripts/check-client-secrets.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.7",

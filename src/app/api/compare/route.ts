@@ -4,7 +4,7 @@ import {
   buildComparisonSnapshot,
   ComparisonInputError,
 } from "@/lib/analytics/build-comparison-snapshot";
-import { snapshotErrorResponse } from "@/lib/analytics/snapshot-api";
+import { comparisonSearchSchema, snapshotErrorResponse } from "@/lib/analytics/snapshot-api";
 import {
   createComparisonSnapshotBuildAuthorizer,
   enforceDrugRequestIngressLimit,
@@ -13,8 +13,10 @@ import {
 export async function GET(request: NextRequest) {
   try {
     await enforceDrugRequestIngressLimit(request.headers);
-    const drugA = request.nextUrl.searchParams.get("drugA") ?? "";
-    const drugB = request.nextUrl.searchParams.get("drugB") ?? "";
+    const { drugA, drugB } = comparisonSearchSchema.parse({
+      drugA: request.nextUrl.searchParams.get("drugA") ?? "",
+      drugB: request.nextUrl.searchParams.get("drugB") ?? "",
+    });
     const authorizeDrugBuild = createComparisonSnapshotBuildAuthorizer(
       request.headers,
     );

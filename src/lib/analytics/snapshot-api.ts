@@ -19,12 +19,19 @@ const normalizedDrugNameSchema = z
 
 export const drugSearchSchema = z.object({ name: normalizedDrugNameSchema });
 
+export const comparisonSearchSchema = z.object({
+  drugA: normalizedDrugNameSchema,
+  drugB: normalizedDrugNameSchema,
+});
+
 export const drugSlugSchema = z
   .string()
   .trim()
   .min(1)
   .max(100)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+export const savedReportIdSchema = z.string().regex(/^[a-f\d]{24}$/i);
 
 export function snapshotErrorResponse(error: unknown) {
   if (error instanceof z.ZodError) {
