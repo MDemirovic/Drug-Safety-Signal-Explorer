@@ -15,7 +15,8 @@
     "test:rxnorm:client": "tsx --conditions=react-server scripts/test-rxnorm-client.ts",
     "test:drug-snapshot": "tsx --conditions=react-server scripts/test-drug-snapshot.ts",
     "test:saved-reports": "tsx --conditions=react-server scripts/test-saved-reports.ts",
-    "test:comparison": "tsx --conditions=react-server scripts/test-comparison.ts"
+    "test:comparison": "tsx --conditions=react-server scripts/test-comparison.ts",
+    "test:ai-summary": "tsx --conditions=react-server scripts/test-ai-summary.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.7",

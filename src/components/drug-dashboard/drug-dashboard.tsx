@@ -29,6 +29,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { AiSummaryCard } from "@/components/ai/ai-summary-card";
 import { LimitationsAlert } from "@/components/limitations-alert";
 import { SaveReportButton } from "@/components/saved-reports/save-report-button";
 import { Button } from "@/components/ui/button";
@@ -428,6 +429,7 @@ export function DrugDashboard({ slug }: { slug: string }) {
         <div className="grid gap-6 lg:grid-cols-3"><TopReactionsChart snapshot={snapshot} /><TopReactionsTable snapshot={snapshot} /></div>
         <div className="grid gap-6 lg:grid-cols-2"><SeriousnessPieChart snapshot={snapshot} /><SeriousnessBreakdownCard snapshot={snapshot} /></div>
         <div className="grid gap-6 lg:grid-cols-2"><YearlyTrendChart snapshot={snapshot} /><LabelSummaryCard snapshot={snapshot} /></div>
+        <AiSummaryCard key={snapshot.slug} endpoint={`/api/drugs/${encodeURIComponent(snapshot.slug)}/summary`} />
         <LimitationsAlert />
         <div className="flex flex-wrap items-center justify-between gap-3 px-2 pb-4 text-xs text-[var(--muted)]"><span>Sources: {snapshot.sourceMeta.eventSource} · {snapshot.sourceMeta.labelSource}</span><span>Aggregate-only snapshot · expires {new Date(snapshot.expiresAt).toLocaleDateString()}</span></div>
       </div>

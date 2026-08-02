@@ -159,6 +159,8 @@ async function createIndexes() {
       collections.comparisonSnapshots,
       "comparison_request_keys_unique",
     ),
+    dropIndexIfPresent(collections.aiSummaries, "summary_cache_unique"),
+    dropIndexIfPresent(collections.aiSummaryLeases, "summary_lease_ttl"),
     dropIndexIfPresent(
       collections.drugIdentities,
       "drug_identity_cache_key_unique",
@@ -213,8 +215,17 @@ async function createIndexes() {
         subjectKey: 1,
         snapshotHash: 1,
         promptVersion: 1,
+        model: 1,
       },
-      { name: "summary_cache_unique", unique: true },
+      { name: "summary_cache_model_unique", unique: true },
+    ),
+    collections.aiSummaries.createIndex(
+      { expiresAt: 1 },
+      { name: "summary_cache_ttl", expireAfterSeconds: 0 },
+    ),
+    collections.aiSummaryLeases.createIndex(
+      { cleanupAt: 1 },
+      { name: "summary_lease_cleanup_ttl", expireAfterSeconds: 0 },
     ),
     collections.savedReports.createIndex(
       { userId: 1 },

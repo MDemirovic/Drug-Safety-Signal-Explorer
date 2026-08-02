@@ -9,12 +9,14 @@ import type {
 } from "@/types/drug-snapshot";
 import type { SavedReportDocument } from "@/types/saved-report";
 import type { ComparisonSnapshotDocument } from "@/types/comparison-snapshot";
+import type { AiSummaryDocument, AiSummaryLeaseDocument } from "@/types/ai-summary";
 
 export const COLLECTION_NAMES = {
   drugSnapshots: "drug_snapshots",
   drugIdentities: "drug_identities",
   comparisonSnapshots: "comparison_snapshots",
   aiSummaries: "ai_summaries",
+  aiSummaryLeases: "ai_summary_leases",
   savedReports: "saved_reports",
   apiLogs: "api_logs",
   searchLogs: "search_logs",
@@ -24,7 +26,8 @@ export type AppCollections = {
   drugSnapshots: Collection<DrugSnapshotDocument>;
   drugIdentities: Collection<DrugIdentity>;
   comparisonSnapshots: Collection<ComparisonSnapshotDocument>;
-  aiSummaries: Collection<Document>;
+  aiSummaries: Collection<AiSummaryDocument>;
+  aiSummaryLeases: Collection<AiSummaryLeaseDocument>;
   savedReports: Collection<SavedReportDocument>;
   apiLogs: Collection<Document>;
   searchLogs: Collection<Document>;
@@ -43,7 +46,8 @@ export async function getCollections(database?: Db): Promise<AppCollections> {
     comparisonSnapshots: db.collection<ComparisonSnapshotDocument>(
       COLLECTION_NAMES.comparisonSnapshots,
     ),
-    aiSummaries: db.collection(COLLECTION_NAMES.aiSummaries),
+    aiSummaries: db.collection<AiSummaryDocument>(COLLECTION_NAMES.aiSummaries),
+    aiSummaryLeases: db.collection<AiSummaryLeaseDocument>(COLLECTION_NAMES.aiSummaryLeases),
     savedReports: db.collection<SavedReportDocument>(
       COLLECTION_NAMES.savedReports,
     ),
