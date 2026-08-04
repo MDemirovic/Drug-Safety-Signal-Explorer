@@ -257,7 +257,26 @@ async function main() {
     1,
   );
 
-  console.log("Comparison ordering, cache, privacy, overlap, trends, TTL, and distinct-drug checks passed.");
+  const unavailableCacheHarness = dependencies();
+  unavailableCacheHarness.deps.getCached = async () => {
+    throw new Error("simulated comparison cache outage");
+  };
+  unavailableCacheHarness.deps.save = async () => {
+    throw new Error("simulated comparison cache outage");
+  };
+  const uncachedResult = await buildComparisonSnapshot(
+    "Cache outage A",
+    "Cache outage B",
+    { dependencies: unavailableCacheHarness.deps },
+  );
+  assert.equal(uncachedResult.cacheStatus, "miss");
+  assert.equal(
+    uncachedResult.comparisonKey,
+    "cache-outage-a::cache-outage-b",
+    "a cache outage must not prevent a live comparison",
+  );
+
+  console.log("Comparison ordering, cache fallback, privacy, overlap, trends, TTL, and distinct-drug checks passed.");
 }
 
 void main();

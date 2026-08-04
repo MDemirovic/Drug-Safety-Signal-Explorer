@@ -456,6 +456,32 @@ async function main() {
   );
   assert.equal(new Set(savedAliasKeys).size, 2);
 
+  const unavailableCacheDependencies: DrugSnapshotDependencies = {
+    ...dependencies,
+    getIdentityByAlias: async () => {
+      throw new Error("simulated identity cache outage");
+    },
+    getCached: async () => {
+      throw new Error("simulated snapshot cache outage");
+    },
+    saveIdentity: async () => {
+      throw new Error("simulated identity cache outage");
+    },
+    save: async () => {
+      throw new Error("simulated snapshot cache outage");
+    },
+  };
+  const unavailableCacheResult = await buildDrugSnapshot(
+    "Cache outage medicine",
+    { dependencies: unavailableCacheDependencies },
+  );
+  assert.equal(unavailableCacheResult.cacheStatus, "miss");
+  assert.equal(
+    unavailableCacheResult.totalReports,
+    200,
+    "a cache outage must not prevent a live aggregate snapshot",
+  );
+
   const rateCounts = new Map<string, number>();
   const rateStore = {
     increment: async ({ key, windowStart }: { key: string; windowStart: Date }) => {
@@ -554,7 +580,7 @@ async function main() {
   );
 
   console.log(
-    "Drug snapshot cache, single-flight, rate-limit, privacy, refresh, TTL, and missing-label checks passed.",
+    "Drug snapshot cache and fallback, single-flight, rate-limit, privacy, refresh, TTL, and missing-label checks passed.",
   );
 }
 

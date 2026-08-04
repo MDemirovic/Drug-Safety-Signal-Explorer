@@ -43,31 +43,61 @@ export class AiSummaryRateLimitExceededError extends RateLimitExceededError {
 
 const mongoRateLimitStore: RateLimitStore = {
   async increment({ key, windowStart, expiresAt }) {
-    const { apiLogs } = await getCollections();
-    const document = await apiLogs.findOneAndUpdate(
-      {
-        service: "rate_limit",
-        rateLimitKey: key,
-        windowStart,
-      },
-      {
-        $inc: { count: 1 },
-        $setOnInsert: {
+    try {
+      const { apiLogs } = await getCollections();
+      const document = await apiLogs.findOneAndUpdate(
+        {
           service: "rate_limit",
           rateLimitKey: key,
           windowStart,
-          createdAt: new Date(),
-          expiresAt,
         },
-      },
-      { upsert: true, returnDocument: "after" },
-    );
+        {
+          $inc: { count: 1 },
+          $setOnInsert: {
+            service: "rate_limit",
+            rateLimitKey: key,
+            windowStart,
+            createdAt: new Date(),
+            expiresAt,
+          },
+        },
+        { upsert: true, returnDocument: "after" },
+      );
 
-    if (!document || typeof document.count !== "number") {
-      throw new Error("The shared rate-limit counter could not be updated.");
+      if (!document || typeof document.count !== "number") {
+        throw new Error("The shared rate-limit counter could not be updated.");
+      }
+
+      return document.count;
+    } catch (error) {
+      console.error(
+        "Shared rate-limit storage is unavailable; using the local fallback.",
+        error,
+      );
+      return memoryRateLimitStore.increment({ key, windowStart, expiresAt });
     }
+  },
+};
 
-    return document.count;
+const localRateLimitCounts = new Map<
+  string,
+  { count: number; expiresAt: number }
+>();
+
+const memoryRateLimitStore: RateLimitStore = {
+  async increment({ key, windowStart, expiresAt }) {
+    const bucketKey = `${key}:${windowStart.toISOString()}`;
+    const now = Date.now();
+    for (const [storedKey, value] of localRateLimitCounts) {
+      if (value.expiresAt <= now) localRateLimitCounts.delete(storedKey);
+    }
+    const previous = localRateLimitCounts.get(bucketKey);
+    const count = (previous?.count ?? 0) + 1;
+    localRateLimitCounts.set(bucketKey, {
+      count,
+      expiresAt: expiresAt.getTime(),
+    });
+    return count;
   },
 };
 

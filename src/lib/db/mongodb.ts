@@ -7,7 +7,10 @@ import { readMongoEnv } from "@/lib/env/server";
 const globalForMongo = globalThis as typeof globalThis & {
   mongoClient?: MongoClient;
   mongoClientPromise?: Promise<MongoClient>;
+  mongoRetryAfter?: number;
 };
+
+const CONNECTION_RETRY_DELAY_MS = 30_000;
 
 function getMongoUri() {
   return readMongoEnv().MONGODB_URI;
@@ -29,6 +32,15 @@ function createMongoClient() {
 }
 
 export function getMongoClient() {
+  if (
+    globalForMongo.mongoRetryAfter &&
+    globalForMongo.mongoRetryAfter > Date.now()
+  ) {
+    return Promise.reject(
+      new Error("MongoDB is temporarily unavailable after a recent connection failure."),
+    );
+  }
+
   if (!globalForMongo.mongoClientPromise) {
     const mongoClient = getMongoClientHandle();
     const connectionPromise = mongoClient.connect();
@@ -41,8 +53,17 @@ export function getMongoClient() {
         globalForMongo.mongoClient = undefined;
       }
 
+      globalForMongo.mongoRetryAfter = Date.now() + CONNECTION_RETRY_DELAY_MS;
+
       throw error;
     });
+
+    void retryableConnectionPromise.then(
+      () => {
+        globalForMongo.mongoRetryAfter = undefined;
+      },
+      () => undefined,
+    );
 
     globalForMongo.mongoClientPromise = retryableConnectionPromise;
   }

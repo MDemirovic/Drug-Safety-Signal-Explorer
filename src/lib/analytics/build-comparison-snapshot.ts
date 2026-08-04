@@ -176,6 +176,37 @@ function cachedResult(
   return { ...snapshotFromDocument(document), cacheStatus: "hit" };
 }
 
+async function readComparisonCache(
+  dependencies: ComparisonDependencies,
+  key: string,
+  now: Date,
+) {
+  try {
+    return await dependencies.getCached(key, now);
+  } catch (error) {
+    console.error(
+      "Comparison cache read failed; continuing without cache.",
+      error,
+    );
+    return null;
+  }
+}
+
+async function writeComparisonCache(
+  dependencies: ComparisonDependencies,
+  snapshot: ComparisonSnapshot,
+  requestKey: string,
+) {
+  try {
+    await dependencies.save(snapshot, requestKey);
+  } catch (error) {
+    console.error(
+      "Comparison cache write failed; returning the assembled comparison.",
+      error,
+    );
+  }
+}
+
 export async function buildComparisonSnapshot(
   drugAInput: string,
   drugBInput: string,
@@ -196,7 +227,11 @@ export async function buildComparisonSnapshot(
 
   const dependencies = options.dependencies ?? defaultDependencies;
   const now = dependencies.now();
-  const cachedByRequest = await dependencies.getCached(requestKey, now);
+  const cachedByRequest = await readComparisonCache(
+    dependencies,
+    requestKey,
+    now,
+  );
   if (cachedByRequest) return cachedResult(cachedByRequest);
 
   const existingBuild = inFlightBuilds.get(requestKey);
@@ -212,9 +247,17 @@ export async function buildComparisonSnapshot(
     }
 
     const comparisonKey = buildComparisonKey(first.slug, second.slug);
-    const cachedByCanonicalKey = await dependencies.getCached(comparisonKey, now);
+    const cachedByCanonicalKey = await readComparisonCache(
+      dependencies,
+      comparisonKey,
+      now,
+    );
     if (cachedByCanonicalKey) {
-      await dependencies.save(snapshotFromDocument(cachedByCanonicalKey), requestKey);
+      await writeComparisonCache(
+        dependencies,
+        snapshotFromDocument(cachedByCanonicalKey),
+        requestKey,
+      );
       return cachedResult(cachedByCanonicalKey);
     }
 
@@ -225,7 +268,7 @@ export async function buildComparisonSnapshot(
       requestKey,
       now,
     );
-    await dependencies.save(snapshot, requestKey);
+    await writeComparisonCache(dependencies, snapshot, requestKey);
     return { ...snapshot, cacheStatus: "miss" as const };
   })();
 

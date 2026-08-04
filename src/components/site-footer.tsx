@@ -17,11 +17,11 @@ export function SiteFooter() {
             Methodology
           </Link>
           <span aria-hidden="true">&middot;</span>
-          <Link href="/methodology" className="hover:text-[var(--ink)]">
+          <Link href="/methodology#data-source" className="hover:text-[var(--ink)]">
             Data source
           </Link>
           <span aria-hidden="true">&middot;</span>
-          <Link href="/methodology" className="hover:text-[var(--ink)]">
+          <Link href="/methodology#terms" className="hover:text-[var(--ink)]">
             Terms
           </Link>
         </div>

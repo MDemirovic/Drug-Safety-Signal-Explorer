@@ -83,6 +83,23 @@ function withCacheStatus(
   return { ...snapshot, cacheStatus };
 }
 
+async function readCache<T>(operation: () => Promise<T>, fallback: T) {
+  try {
+    return await operation();
+  } catch (error) {
+    console.error("Drug snapshot cache read failed; continuing without cache.", error);
+    return fallback;
+  }
+}
+
+async function writeCache(operation: () => Promise<unknown>) {
+  try {
+    await operation();
+  } catch (error) {
+    console.error("Drug snapshot cache write failed; returning live data.", error);
+  }
+}
+
 export async function buildDrugSnapshot(
   inputName: string,
   options: BuildDrugSnapshotOptions = {},
@@ -91,7 +108,7 @@ export async function buildDrugSnapshot(
   const aliasKey = buildDrugAliasKey(inputName);
   const aliasIdentity = options.knownIdentity
     ? null
-    : await dependencies.getIdentityByAlias(aliasKey);
+    : await readCache(() => dependencies.getIdentityByAlias(aliasKey), null);
   const knownIdentity = options.knownIdentity ?? aliasIdentity;
   const now = dependencies.now();
   let expensiveWorkAuthorized = false;
@@ -101,19 +118,25 @@ export async function buildDrugSnapshot(
       !knownIdentity.rxcui &&
       knownIdentity.slug !== snapshot.slug
     ) {
-      await dependencies.saveIdentity(snapshot, undefined, knownIdentity.slug);
+      await writeCache(() =>
+        dependencies.saveIdentity(snapshot, undefined, knownIdentity.slug),
+      );
     }
   }
 
   if (!options.forceRefresh && aliasIdentity?.rxcui) {
-    const cached = await dependencies.getCached(
-      aliasIdentity.cacheKey,
-      now,
-      aliasIdentity.normalizedName,
-      aliasIdentity.rxcui,
+    const cached = await readCache(
+      () =>
+        dependencies.getCached(
+          aliasIdentity.cacheKey,
+          now,
+          aliasIdentity.normalizedName,
+          aliasIdentity.rxcui,
+        ),
+      null,
     );
     if (cached) {
-      await dependencies.saveIdentity(cached, aliasKey);
+      await writeCache(() => dependencies.saveIdentity(cached, aliasKey));
       await persistRecoveredSlugAlias(cached);
       return withCacheStatus(cached, "hit");
     }
@@ -136,14 +159,18 @@ export async function buildDrugSnapshot(
   const cacheKey = buildDrugCacheKey(normalized);
 
   if (!options.forceRefresh) {
-    const cached = await dependencies.getCached(
-      cacheKey,
-      now,
-      normalized.normalizedName,
-      normalized.rxcui,
+    const cached = await readCache(
+      () =>
+        dependencies.getCached(
+          cacheKey,
+          now,
+          normalized.normalizedName,
+          normalized.rxcui,
+        ),
+      null,
     );
     if (cached) {
-      await dependencies.saveIdentity(cached, aliasKey);
+      await writeCache(() => dependencies.saveIdentity(cached, aliasKey));
       await persistRecoveredSlugAlias(cached);
       return withCacheStatus(cached, "hit");
     }
@@ -152,7 +179,7 @@ export async function buildDrugSnapshot(
   const existingBuild = inFlightBuilds.get(cacheKey);
   if (existingBuild) {
     const snapshot = await existingBuild;
-    await dependencies.saveIdentity(snapshot, aliasKey);
+    await writeCache(() => dependencies.saveIdentity(snapshot, aliasKey));
     await persistRecoveredSlugAlias(snapshot);
     return snapshot;
   }
@@ -208,7 +235,7 @@ export async function buildDrugSnapshot(
       expiresAt: new Date(now.getTime() + SNAPSHOT_TTL_MS),
     };
 
-    await dependencies.save(snapshot, aliasKey);
+    await writeCache(() => dependencies.save(snapshot, aliasKey));
     await persistRecoveredSlugAlias(snapshot);
 
     return withCacheStatus(
